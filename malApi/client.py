@@ -1,48 +1,21 @@
 #!/bin/env python3
 
-import os
 import requests
 
 from .auth import Auth
 from .typings.userAnimeList import UserAnimeList
 from .typings.userData import UserData
-from dotenv import load_dotenv
-from pathlib import Path
-from pprint import pprint
-from typing import Literal, Union
-
-
-load_dotenv()
-
-# max limit = 1000
-
-MangaRankingType = Union[
-	Literal["all"],
-	Literal["manga"],
-	Literal["oneshots"],
-	Literal["doujin"],
-	Literal["lightnovels"],
-	Literal["novels"],
-	Literal["manhwa"],
-	Literal["manhua"],
-	Literal["bypopularity"],
-	Literal["favorite"],
-]
-
-MangaStatus = Union[
-	Literal["reading"],
-	Literal["completed"],
-	Literal["on_hold"],
-	Literal["dropped"],
-	Literal["plan_to_read"],
-]
-
-MangaSortVaildValues = Union[
-	Literal["list_score"],
-	Literal["list_updated_at"],
-	Literal["manga_title"],
-	Literal["manga_start_date"],
-]
+from .typings.clientTypings import (
+	AnimeSeason,
+	AnimeSeasonSort,
+	MangaRankingType,
+	MangaStatus,
+	MangaSortVaildValues,
+	AnimeRankType,
+	AnimeStatus,
+	UserAnimeSortVaildValues,
+)
+from typing import Union, Literal
 
 
 class Client:
@@ -55,177 +28,295 @@ class Client:
 	def getAnimeList(
 		self, query: str, limit: int = 100, offset: int = 0, fields: Union[None, str] = None
 	):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + "anime"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params = {"q": query, "limit": limit, "offset": offset, "fields": fields}
+		if fields:
+			params["fields"] = fields
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	def getAnimeDetails(self, animeId: int, fields: Union[None, str] = None):
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + f"anime/{animeId}"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params: dict[str, str] = {}
+		if fields:
+			params["fields"] = fields
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	def getAnimeRanking(
 		self,
-		rankingType: str,
+		rankingType: AnimeRankType = "all",
 		limit: int = 100,
 		offset: int = 0,
 		fields: Union[None, str] = None,
 	):
-		"""
-The returned anime contains the ranking field.
-ranking_type:
-all          Top Anime Series
-airing       Top Airing Anime
-upcoming     Top Upcoming Anime
-tv           Top Anime TV Series
-ova          Top Anime OVA Series
-movie        Top Anime Movies
-special      Top Anime Specials
-bypopularity Top Anime by Popularity
-favorite     Top Favorited Anime
-        """
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + "anime/ranking"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params: dict[str, Union[str, int]] = {"limit": limit, "offset": offset}
+		if rankingType:
+			params["ranking_type"] = rankingType
+		if fields:
+			params["fields"] = fields
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	def getSeasonalAnime(
 		self,
 		year: int,
-		season: str,
+		season: AnimeSeason,
+		sort: Union[None, AnimeSeasonSort,] = None,
 		limit: int = 100,
 		offset: int = 0,
 		fields: Union[None, str] = None,
 	):
-		"""
-sort
-	anime_score          Descending
-	anime_num_list_users Descending
-
-	Season name Months
-	winter      January, February, March
-	spring      April, May, June
-	summer      July, August, September
-	fall        October, November, December
-		"""
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + f"anime/season/{year}/{season}"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params: dict[str, Union[str, int]] = {"limit": limit, "offset": offset}
+		if sort:
+			params["sort"] = sort
+		if fields:
+			params["fields"] = fields
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	# User Anime
 
 	def getUserSuggestedAnime(
 		self, limit: int = 100, offset: int = 0, fields: Union[None, str] = None
 	):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+		url = self.BASE_URL + "anime/suggestions"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params: dict[str, Union[str, int]] = {"limit": limit, "offset": offset}
+		if fields:
+			params["fields"] = fields
 
-	def updateUserStatusList(self, animeId: int):
-		"""
-REQUEST BODY SCHEMA: application/x-www-form-urlencoded
-status   string: [watching | completed | on_hold | dropped | plan_to_watch]
-is_rewatching  boolean
-score integer 0-10
-num_watched_episodes integer
-priority integer 0-2
-num_times_rewatched integer
-rewatch_value integer 0-5
-tags string
-comments string
-"""
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
+
+	def updateUserAnimeListStatus(
+		self,
+		animeId: int,
+		status: Union[None, AnimeStatus] = None,
+		score: Union[None, int] = None,
+		priority: Union[None, int] = None,
+		numWatchedEpisodes: Union[None, int] = None,
+		isRewatching: Union[None, bool] = None,
+		numTimesRewatched: Union[None, int] = None,
+		rewatchValue: Union[None, int] = None,
+		tags: Union[None, str] = None,
+		comments: Union[None, str] = None,
+	):
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + f"anime/{animeId}/my_list_status"
+		headers = {
+			"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}",
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
+		data: dict[str, Union[str, int]] = {}
+
+		if status:
+			data["status"] = status
+		if score:
+			data["score"] = score
+		if priority:
+			data["priority"] = priority
+		if tags:
+			data["tags"] = tags
+		if comments:
+			data["comments"] = comments
+		if numWatchedEpisodes:
+			data["num_watched_episodes"] = numWatchedEpisodes
+		if isRewatching:
+			data["is_rewatching"] = isRewatching
+		if numTimesRewatched:
+			data["num_times_rewatched"] = numTimesRewatched
+		if rewatchValue:
+			data["rewatch_value"] = rewatchValue
+
+		res = requests.patch(url, data=data, headers=headers)
+		return res.json()
 
 	def deleteUserAnime(self, animeId: int):
-		if not self.auth.authData:
-			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
-
-	def getUserAnimeList(self, userName: str = "@me", limit: int = 100) -> UserAnimeList:
-		"""
-status: Union[None | "watching" | "completed" | "on_hold" | "dropped" | "plan_to_watch"]
-
-sort:
-Value	Order
-list_score	Descending
-list_updated_at	Descending
-anime_title	Ascending
-anime_start_date	Descending
-anime_id (Under Development)	Ascending
-		"""
 		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
+		url = self.BASE_URL + f"anime/{animeId}/my_list_status"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		res = requests.delete(url, headers=headers)
+		return res.status_code
 
-		url = self.BASE_URL + f"users/{userName}/animelist?fields=list_status&limit={limit}"
+	def getUserAnimeList(
+		self,
+		userName: str = "@me",
+		limit: int = 100,
+		offset: int = 0,
+		status: Union[AnimeStatus, None] = None,
+		sort: Union[UserAnimeSortVaildValues, None] = None,
+	) -> UserAnimeList:
+
+		# TODO: Document
+		if not self.auth.authData:
+			raise Exception("Auth data is None. Run auth.authenticate() before use.")
+
+		url = self.BASE_URL + f"users/{userName}/animelist"
+		params = {"field": "list_status", "limit": limit, "offset": offset}
+		if status:
+			params["status"] = status
+		if sort:
+			params["sort"] = sort
 		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
 
-		res = requests.get(url, headers=headers)
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
 		return res.json()
 
 	# Forums
 
 	def getForumBoards(self):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + "forum/boards"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+
+		res = requests.get(url, headers=headers)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	def getForumTopicDetail(self, topicId: int, limit: int = 100, offset: int = 0):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + f"forum/topic/{topicId}"
+		params = {"limit": limit, "offset": offset}
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	def getForumTopics(
 		self,
-		boardId: int,
-		subboardId: int,
+		boardId: Union[int, None] = None,
+		subboardId: Union[int, None] = None,
 		limit: int = 100,
-		sort: str = "recent",
-		q: Union[str, None] = None,
+		offset: int = 0,
+		sort: Union[Literal["recent"], None] = None,
+		query: Union[str, None] = None,
 		topicUserName: Union[str, None] = None,
 		userName: Union[str, None] = None,
 	):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + "forum/topics"
+		params: dict[str, Union[int, str]] = {"limit": limit, "offset": offset}
+		if boardId:
+			params["board_id"] = boardId
+		if subboardId:
+			params["subboard_id"] = subboardId
+		if sort:
+			params["sort"] = sort
+		if query:
+			params["q"] = query
+		if topicUserName:
+			params["topic_user_name"] = topicUserName
+		if userName:
+			params["user_name"] = userName
+
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	# Manga
 	def getMangaList(
-		self, q: str, limit: int = 100, offset: int = 0, fields: Union[None, str] = None
+		self, query: str, limit: int = 100, offset: int = 0, fields: Union[None, str] = None
 	):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
 
-	def getMangaDetails(self, mangaId: str, fields: Union[None, str] = None):
+		url = self.BASE_URL + "manga"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params = {"q": query, "limit": limit, "offset": offset, "fields": fields}
+		if fields:
+			params["fields"] = fields
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
+
+	def getMangaDetails(self, mangaId: int, fields: Union[None, str] = None):
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + f"manga/{mangaId}"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params: dict[str, str] = {}
+		if fields:
+			params["fields"] = fields
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	def getMangaRanking(
 		self,
@@ -234,101 +325,116 @@ anime_id (Under Development)	Ascending
 		offset: int = 0,
 		fields: Union[None, str] = None,
 	):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + "manga/ranking"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		params: dict[str, Union[str, int]] = {"limit": limit, "offset": offset}
+		if rankingType:
+			params["ranking_type"] = rankingType
+		if fields:
+			params["fields"] = fields
+
+		res = requests.get(url, headers=headers, params=params)
+
+		res.raise_for_status()
+
+		return res.json()
 
 	# User Manga
 
 	def updateUserMangaListStatus(
 		self,
 		mangaId: int,
-		status: MangaStatus,
-		isReReading: bool,
-		score: int,
-		numVolsRead: int,
-		numChaptersRead: int,
-		priority: int,
-		numTimesRead: int,
-		reReadValue: int,
-		tags: str,
-		comments: str,
+		status: Union[None, MangaStatus] = None,
+		isReReading: Union[None, bool] = None,
+		score: Union[None, int] = None,
+		numVolsRead: Union[None, int] = None,
+		numChaptersRead: Union[None, int] = None,
+		priority: Union[None, int] = None,
+		numTimesRead: Union[None, int] = None,
+		reReadValue: Union[None, int] = None,
+		tags: Union[None, str] = None,
+		comments: Union[None, str] = None,
 	):
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+
+		url = self.BASE_URL + f"manga/{mangaId}/my_list_status"
+		headers = {
+			"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}",
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
+		data: dict[str, Union[str, int]] = {}
+
+		if status:
+			data["status"] = status
+		if isReReading:
+			data["is_rereading"] = isReReading
+		if score:
+			data["score"] = score
+		if numVolsRead:
+			data["num_vols_read"] = numVolsRead
+		if numChaptersRead:
+			data["num_chapters_read"] = numChaptersRead
+		if priority:
+			data["priority"] = priority
+		if numTimesRead:
+			data["num_times_read"] = numTimesRead
+		if reReadValue:
+			data["reread_value"] = reReadValue
+		if tags:
+			data["tags"] = tags
+		if comments:
+			data["comments"] = comments
+		res = requests.patch(url, data=data, headers=headers)
+		return res.json()
 
 	def deleteUserMangaListItem(self, mangaId: int):
+		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
+		url = self.BASE_URL + f"manga/{mangaId}/my_list_status"
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		res = requests.delete(url, headers=headers)
+		return res.status_code
 
 	def getUserMangaList(
 		self,
-		mangaId: int,
-		status: MangaStatus,
-		sort: MangaSortVaildValues,
+		userName: str = "@me",
+		status: Union[MangaStatus, None] = None,
+		sort: Union[MangaSortVaildValues, None] = None,
 		limit: int = 100,
 		offset: int = 0,
 	):
-		"""
-sort	
-string
-Valid values:
-
-	Value	Order
-	list_score	Descending
-	list_updated_at	Descending
-	manga_title	Ascending
-	manga_start_date	Descending
-	manga_id (Under Development)	Ascending
-		"""
-		if not self.auth.authData:
-			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-		raise NotImplementedError()
-		# TODO: Implement
-		# TODO: Document
-
-	# User
-	def getUserData(self, userName: str = "@me") -> UserData:
 		# TODO: Document
 		if not self.auth.authData:
 			raise Exception("Auth data is None. Run auth.authenticate() before use.")
-
-		url = self.BASE_URL + f"users/{userName}?fields=anime_statistics"
+		url = self.BASE_URL + f"users/{userName}/mangalist"
+		params = {"field": "list_status", "limit": limit, "offset": offset}
+		if status:
+			params["status"] = status
+		if sort:
+			params["sort"] = sort
 		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
-
-		res = requests.get(url, headers=headers)
+		res = requests.get(url, headers=headers, params=params)
+		res.raise_for_status()
 		return res.json()
 
-
-def __main():
-	MAL_CLIENT_ID = os.getenv("MAL_CLIENT_ID")
-	MAL_CLIENT_SECRET = os.getenv("MAL_CLIENT_SECRET")
-	MAL_REDIRECT_URI = os.getenv("MAL_REDIRECT_URI")
-
-	if not MAL_CLIENT_ID or not MAL_CLIENT_SECRET or not MAL_REDIRECT_URI:
-		raise Exception("Environment Variables not loaded")
-
-	auth = Auth(
-		clientId=MAL_CLIENT_ID,
-		clientSecret=MAL_CLIENT_SECRET,
-		redirectUri=MAL_REDIRECT_URI,
-		cacheFile=Path.joinpath(Path.home(), ".cache/malCache.json"),
-	)
-
-	auth.authenticate()
-
-	client = Client(auth=auth)
-	pprint(client.getUserData())
-	pprint(client.getUserAnimeList(limit=10))
-
-
-if __name__ == "__main__":
-	__main()
+	# User
+	def getUserData(
+		self, userName: str = "@me", fields: Union[None, str] = None,
+	) -> UserData:
+		# TODO: Document
+		if not self.auth.authData:
+			raise Exception("Auth data is None. Run auth.authenticate() before use.")
+		url = self.BASE_URL + f"users/{userName}"
+		params: dict[str, str] = {}
+		if fields:
+			params["fields"] = fields
+		headers = {"Authorization": f"Bearer {self.auth.authData[ 'access_token' ]}"}
+		res = requests.get(url, headers=headers, params=params)
+		res.raise_for_status()
+		return res.json()
