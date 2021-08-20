@@ -1,16 +1,15 @@
 #!/bin/env python3
-
-import os
-from pathlib import Path
-import requests
-from pprint import pprint
-import secrets
-from .listener import getCode
 import json
-from typing import TypedDict, Union
-
+import os
+import requests
+import secrets
 import webbrowser
+
+from .listener import getCode
 from dotenv import load_dotenv
+from pathlib import Path
+from pprint import pprint
+from typing import TypedDict, Union
 
 load_dotenv()
 

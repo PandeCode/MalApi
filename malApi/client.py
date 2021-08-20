@@ -1,13 +1,15 @@
 #!/bin/env python3
-from .typings.userData import UserData
-from .typings.userAnimeList import UserAnimeList
+
 import os
 import requests
+
+from .auth import Auth
+from .typings.userAnimeList import UserAnimeList
+from .typings.userData import UserData
+from dotenv import load_dotenv
 from pathlib import Path
 from pprint import pprint
 
-from dotenv import load_dotenv
-from .auth import Auth
 
 load_dotenv()
 
