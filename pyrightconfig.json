@@ -1,0 +1,9 @@
+{
+	"autoSearchPaths" : true,
+	"diagnosticMode" : "openFilesOnly",
+	"useLibraryCodeForTypes" : true,
+	"stubPath" : "./typeStubs",
+	"typeCheckingMode" : "strict",
+	"pythonPlatform": "Linux",
+	"pythonVersion": "3.9"
+}
