@@ -1,2 +1,5 @@
 .env
 tags
+build
+dist
+myanimelist_api.egg-info

@@ -1,6 +1,5 @@
 #!/bin/env python3
 import json
-import os
 import requests
 import secrets
 import webbrowser
@@ -8,7 +7,6 @@ import webbrowser
 from .listener import getCode
 from dotenv import load_dotenv
 from pathlib import Path
-from pprint import pprint
 from typing import TypedDict, Union
 
 load_dotenv()
@@ -154,33 +152,3 @@ class Auth:
 	def getNewCodeVerifier() -> str:
 		token = secrets.token_urlsafe(100)
 		return token[:128]
-
-
-if __name__ == "__main__":
-	MAL_CLIENT_ID = os.getenv("MAL_CLIENT_ID")
-	MAL_CLIENT_SECRET = os.getenv("MAL_CLIENT_SECRET")
-	MAL_REDIRECT_URI = os.getenv("MAL_REDIRECT_URI")
-
-	if not MAL_CLIENT_ID or not MAL_CLIENT_SECRET or not MAL_REDIRECT_URI:
-		raise Exception("Environment Variables not loaded")
-
-	auth = Auth(
-		clientId=MAL_CLIENT_ID,
-		clientSecret=MAL_CLIENT_SECRET,
-		redirectUri=MAL_REDIRECT_URI,
-		cacheFile=Path.joinpath(Path.home(), ".cache/malCache.json"),
-	)
-	auth.authenticate()
-
-	url = "https://api.myanimelist.net/v2/users/@me"
-	if not auth.authData:
-		raise Exception("Auth data is None")
-	headers = {"Authorization": f"Bearer {auth.authData['access_token']}"}
-
-	res = requests.get(url, headers=headers)
-
-	print("Auth Data : ", end="")
-	pprint(auth.authData)
-	print("Status    : ", res.status_code)
-	print("Json      : ", end="")
-	pprint(res.json())

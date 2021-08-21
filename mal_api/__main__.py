@@ -1,13 +1,10 @@
 #!/bin/env python3
 import os
-from dotenv import load_dotenv
 from pprint import pprint
 from pathlib import Path
 
-from malApi.auth import Auth
-from malApi.client import Client
-
-load_dotenv()
+from mal_api.client import Client
+from mal_api.auth import Auth
 
 
 def main():

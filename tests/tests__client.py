@@ -5,8 +5,8 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 
-from ..client import Client
-from ..auth import Auth
+from mal_api.client import Client
+from mal_api.auth import Auth
 
 load_dotenv()
 
