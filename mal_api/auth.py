@@ -5,11 +5,8 @@ import secrets
 import webbrowser
 
 from .listener import getCode
-from dotenv import load_dotenv
 from pathlib import Path
 from typing import TypedDict, Union
-
-load_dotenv()
 
 
 class AuthData(TypedDict):
