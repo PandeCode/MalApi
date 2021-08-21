@@ -1,45 +1,7 @@
-from typing import TypedDict, Optional
-
-
-class AnimeDataNodeMainPicture(TypedDict):
-	medium: str  # JPEG URL
-	large: str  # JPEG URL
-
-
-class AnimeDataNode(TypedDict):
-	id: int
-	title: str
-	main_picture: AnimeDataNodeMainPicture
-
-
-class AnimeDataListStatus(TypedDict, total=False):
-	finish_date: Optional[str]  # datetime
-	start_date: Optional[str]  # datetime
-
-	status: str
-	score: int
-	num_episodes_watched: int
-	is_rewatching: bool
-	updated_at: str  # datetime
-
-
-class AnimeData(TypedDict):
-	node: AnimeDataNode
-	list_status: AnimeDataListStatus
-
-
-class Paging(TypedDict, total=False):
-	next: Optional[str]  # url
-	previous: Optional[str]  # url
-
-
-class UserAnimeList(TypedDict):
-	data: list[AnimeData]
-	paging: Paging
-
+from mal_api.clientTypings import UserAnimeList, UserData
 
 if __name__ == "__main__":
-	data: UserAnimeList = {
+	userAnimeList: UserAnimeList = {
 		"data": [
 			{
 				"list_status": {
@@ -231,4 +193,29 @@ if __name__ == "__main__":
 		"paging": {
 			"next": "https://api.myanimelist.net/v2/users/@me/animelist?offset=10&fields=list_status&limit=10"
 		},
+	}
+
+	userData: UserData = {
+		"anime_statistics": {
+			"mean_score": 7.46,
+			"num_days": 20.85,
+			"num_days_completed": 13.13,
+			"num_days_dropped": 0,
+			"num_days_on_hold": 4.45,
+			"num_days_watched": 25.34,
+			"num_days_watching": 3.27,
+			"num_episodes": 1629,
+			"num_items": 170,
+			"num_items_completed": 77,
+			"num_items_dropped": 0,
+			"num_items_on_hold": 6,
+			"num_items_plan_to_watch": 76,
+			"num_items_watching": 11,
+			"num_times_rewatched": 0,
+		},
+		"birthday": "2000-09-02",
+		"id": 13295048,
+		"joined_at": "2021-07-14T19:41:28+00:00",
+		"location": "",
+		"name": "d3bug64",
 	}

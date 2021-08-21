@@ -3,9 +3,7 @@
 import requests
 
 from .auth import Auth
-from .typings.userAnimeList import UserAnimeList
-from .typings.userData import UserData
-from .typings.clientTypings import (
+from .types__client import (
 	AnimeSeason,
 	AnimeSeasonSort,
 	MangaRankingType,
@@ -14,6 +12,8 @@ from .typings.clientTypings import (
 	AnimeRankType,
 	AnimeStatus,
 	UserAnimeSortVaildValues,
+	UserData,
+	UserAnimeList,
 )
 from typing import Union, Literal
 
